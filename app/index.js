@@ -1,17 +1,22 @@
+import { Link } from "expo-router";
+import { createNativeStackNavigator } from "@react-navigation/native-stack"; 
 import { StyleSheet, Text, View } from "react-native";
+
+import SignUpScreen from "./screens/signUpScreen";
+import SignInScreen from "./screens/signInScreen";
+import ForgotPasswordScreen from "./screens/forgotPasswordScreen";
+import TabContainer from "./screens/tabContainer";
+
+const Stack = createNativeStackNavigator();
 
 export default function Page() {
   return (
-
-    <View style={styles.container}>
-      <View style={styles.main}>
-        
-        <Text style={styles.subtitle}>This is the first page of your app.</Text>
-        
-      </View>
-    </View>
-
-  
+  <Stack.Navigator initialRouteName="SignInScreen" screenOptions={{ headerShown:false }}>
+    <Stack.Screen name="signInScreen" component={SignInScreen} />
+    <Stack.Screen name="signUpScreen" component={SignUpScreen} />
+    <Stack.Screen name="forgotPasswordScreen" component={ForgotPasswordScreen} />
+    <Stack.Screen name="tabContainer" component={TabContainer} />
+  </Stack.Navigator>
     
   );
 }
