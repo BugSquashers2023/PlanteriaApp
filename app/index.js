@@ -6,6 +6,7 @@ import SignUpScreen from "./screens/signUpScreen";
 import SignInScreen from "./screens/signInScreen";
 import ForgotPasswordScreen from "./screens/forgotPasswordScreen";
 import TabContainer from "./screens/tabContainer";
+import ModelSecreen from "./screens/modelScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -16,6 +17,7 @@ export default function Page() {
     <Stack.Screen name="signUpScreen" component={SignUpScreen} />
     <Stack.Screen name="forgotPasswordScreen" component={ForgotPasswordScreen} />
     <Stack.Screen name="tabContainer" component={TabContainer} />
+    <Stack.Screen name="modelScreen" component={ModelSecreen} options={{presentation: 'modal'}}/>
   </Stack.Navigator>
     
   );
