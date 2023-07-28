@@ -7,6 +7,7 @@ import SignInScreen from "./screens/signInScreen";
 import ForgotPasswordScreen from "./screens/forgotPasswordScreen";
 import TabContainer from "./screens/tabContainer";
 import ModelSecreen from "./screens/modelScreen";
+import ResultsScreen from "./screens/apiResultsScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -18,6 +19,7 @@ export default function Page() {
     <Stack.Screen name="forgotPasswordScreen" component={ForgotPasswordScreen} />
     <Stack.Screen name="tabContainer" component={TabContainer} />
     <Stack.Screen name="modelScreen" component={ModelSecreen} options={{presentation: 'modal'}}/>
+    <Stack.Screen name="resultsScreen" component={ResultsScreen} options={{presentation: 'modal'}}/>
   </Stack.Navigator>
     
   );

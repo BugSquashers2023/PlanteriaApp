@@ -24,7 +24,6 @@ const Information = () => {
   return (
 
     <View style={{flex: 1, marginTop: 40}}>       
-
         <FlatList 
           data={data}
           renderItem={({item}) =>(
@@ -38,7 +37,6 @@ const Information = () => {
             </Pressable>
           )}
         />
-
     </View>
   )
 }

@@ -54,6 +54,7 @@ const SignInScreen = () => {
           value={username}
           setValue={setUsername}
         />
+        
         <CustomInput
           placeholder="Password"
           value={password}
