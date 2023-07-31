@@ -3,14 +3,38 @@ import { View, Text, Modal, Image, StyleSheet, FlatList, Pressable, useWindowDim
 import { ScrollView } from "react-native-gesture-handler";
 import CustomButton from "../customs/CustomButton/CustomButton";
 import CustomLoader from "../customs/CustomLoading/customLoader";
-
+import { collection, addDoc, Timestamp } from 'firebase/firestore';
+import { db } from '../Data/Firebase'; 
 const ResultsScreen = ({ route, navigation }) => {
+    const [userId, setUserId] = useState(null);
+
     const{data} = route.params;
     const[viewItem, setViewItem] = useState(false);
     //const[loading, setLoading] = useState(false);
     const[chosenDetails, setChosenDetails] = useState();
     const{ width } = useWindowDimensions();
     let details;
+
+    const saveDetailsToFirestore = async () => {
+        // Get the current timestamp as the date taken
+        const dateTaken = Date.now();
+    
+        try {
+          const docRef = await addDoc(collection(db, 'user_plant_details'), {
+            userId: userId, // Use the userId obtained from the current user
+            plantName: chosenDetails.name,
+            plantData: chosenDetails.plantData,
+            images: chosenDetails.images,
+            dateTaken: Timestamp.fromMillis(dateTaken), // Convert dateTaken to a Firestore Timestamp
+          });
+    
+          console.log('Document written with ID: ', docRef.id);
+          // You can perform any additional actions after the details are saved here.
+        } catch (error) {
+          console.error('Error adding document: ', error);
+          // Handle any errors that occur during the saving process
+        }
+      };
 
     return(
         
@@ -55,7 +79,7 @@ const ResultsScreen = ({ route, navigation }) => {
                     <Text>{chosenDetails.plantData.wiki_description.value}</Text>
                 </View>
                 <View style={{justifyContent: "center", alignItems: "center"}}>
-                    <CustomButton text="save" onPress={navigation.navigate()} />
+                    <CustomButton text="save" onPress={saveDetailsToFirestore} />
                     <CustomButton text="discard" />
                 </View>
             </ScrollView>

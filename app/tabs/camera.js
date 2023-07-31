@@ -99,7 +99,7 @@ const CameraScreen = () => {
         //const axios = require('axios');
         console.log("access point is triggered");
         const data = {
-          api_key: "YIgMU8MqC66LEMRQRt2aWXrshPmJeal7GMRoeJl3bSUPufQDhx",
+          api_key: "4SVwYwK2SpxNsVtJOySrcalg54M8M2KgY48l3tKFhFrQ6OiqVX",
           //api_key: "4SVwYwK2SpxNsVtJOySrcalg54M8M2KgY48l3tKFhFrQ6OiqVX",
           images: formatedPic,
           latitude: latCoord,

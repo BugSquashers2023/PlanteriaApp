@@ -1,7 +1,14 @@
-import React from 'react';
-import {View, Text, TextInput, StyleSheet} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
-const CustomInput = ({value, setValue, placeholder, secureTextEntry}) => {
+const CustomInput = ({ value, setValue, placeholder, secureTextEntry, error, onChange }) => {
+  const [showPassword, setShowPassword] = useState(false);
+
+  const toggleShowPassword = () => {
+    setShowPassword((prev) => !prev);
+  };
+
   return (
     <View style={styles.container}>
       <TextInput
@@ -9,8 +16,15 @@ const CustomInput = ({value, setValue, placeholder, secureTextEntry}) => {
         onChangeText={setValue}
         placeholder={placeholder}
         style={styles.input}
-        secureTextEntry={secureTextEntry}
+        secureTextEntry={secureTextEntry && !showPassword}
+        autoCapitalize="none"
       />
+      {secureTextEntry && (
+        <TouchableOpacity style={styles.showPasswordButton} onPress={toggleShowPassword}>
+          <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="gray" />
+        </TouchableOpacity>
+      )}
+      {/* {error && <Text style={styles.errorText}>{error}</Text>} */}
     </View>
   );
 };
@@ -26,10 +40,19 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     paddingHorizontal: 10,
     marginVertical: 10,
-    
   },
   input: {
-    fontSize:15,
+    fontSize: 15,
+  },
+  showPasswordButton: {
+    position: 'absolute',
+    top: 12,
+    right: 10,
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 12,
+    marginTop: 5,
   },
 });
 
