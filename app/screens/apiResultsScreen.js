@@ -1,40 +1,53 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { View, Text, Modal, Image, StyleSheet, FlatList, Pressable, useWindowDimensions } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import CustomButton from "../customs/CustomButton/CustomButton";
 import CustomLoader from "../customs/CustomLoading/customLoader";
-import { collection, addDoc, Timestamp } from 'firebase/firestore';
-import { db } from '../Data/Firebase'; 
+import { collection, addDoc, Timestamp, doc, setDoc } from 'firebase/firestore';
+import { db, auth  } from '../Data/Firebase'; 
 const ResultsScreen = ({ route, navigation }) => {
-    const [userId, setUserId] = useState(null);
+    const { data } = route.params;
+    const [viewItem, setViewItem] = useState(false);
+    const [chosenDetails, setChosenDetails] = useState();
+    const { width } = useWindowDimensions();
+    const [userId, setUserId] = useState(null); // Add the userId state here
 
-    const{data} = route.params;
-    const[viewItem, setViewItem] = useState(false);
-    //const[loading, setLoading] = useState(false);
-    const[chosenDetails, setChosenDetails] = useState();
-    const{ width } = useWindowDimensions();
-    let details;
+    // Fetch the user's UID from Firebase Authentication
+    const fetchUserId = async () => {
+        try {
+            const user = auth.currentUser;
+            if (user) {
+                setUserId(user.uid);
+            }
+        } catch (error) {
+            console.error("Error fetching user ID:", error);
+        }
+    };
+
+    useEffect(() => {
+        fetchUserId();
+    }, []);
 
     const saveDetailsToFirestore = async () => {
         // Get the current timestamp as the date taken
         const dateTaken = Date.now();
-    
         try {
-          const docRef = await addDoc(collection(db, 'user_plant_details'), {
-            userId: userId, // Use the userId obtained from the current user
-            plantName: chosenDetails.name,
-            plantData: chosenDetails.plantData,
-            images: chosenDetails.images,
-            dateTaken: Timestamp.fromMillis(dateTaken), // Convert dateTaken to a Firestore Timestamp
-          });
+            // Use the user's UID as the document ID
+            const userPlantRef = doc(db, 'user_plant_details', userId);
+            await setDoc(userPlantRef, {
+                plantName: chosenDetails.name,
+                plantData: chosenDetails.plantData,
+                images: chosenDetails.images,
+                dateTaken: Timestamp.fromMillis(dateTaken), // Convert dateTaken to a Firestore Timestamp
+            });
     
-          console.log('Document written with ID: ', docRef.id);
-          // You can perform any additional actions after the details are saved here.
+            console.log('User plant data added to Firestore successfully!');
+            // You can perform any additional actions after the details are saved here.
         } catch (error) {
-          console.error('Error adding document: ', error);
-          // Handle any errors that occur during the saving process
+            console.error('Error adding user plant document: ', error);
+            // Handle any errors that occur during the saving process
         }
-      };
+    };
 
     return(
         

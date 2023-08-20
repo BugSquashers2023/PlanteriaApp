@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { RefreshControl, ScrollView, StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import SignUpScreen from "./screens/signUpScreen";
@@ -8,27 +8,24 @@ import ForgotPasswordScreen from "./screens/forgotPasswordScreen";
 import TabContainer from "./screens/tabContainer";
 import ModelSecreen from "./screens/modelScreen";
 import ResultsScreen from "./screens/apiResultsScreen";
-import { Link } from "expo-router";
+import TermsAndConditionsScreen from "./customs/Terms&Conditions/Terms&Conditions";
+import UserSecuritySettings from "./Security/UserSecuritySettings";
+import AboutUs from "./Settings/AboutUs";
+import PersonalDetailsScreen from "./Settings/PersonalDetails";
+import Accessibility from "./Settings/Accessibility";
+import PrivacyPolicyScreen from "./customs/Terms&Conditions/PrivacyPolicy";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 
+import * as SplashScreen from "expo-splash-screen";
+import * as Font from "expo-font";
+import PlantData from "./tabs/plantData";
 
 const Stack = createNativeStackNavigator();
+const Drawer = createDrawerNavigator();
 
 export default function Page() {
   const [initializing, setInitializing] = useState(true);
   const [user, setUser] = useState(null);
-  const [refreshing, setRefreshing] = useState(false);
-
-  const onRefresh = () => {
-    setRefreshing(true);
-
-    // Implement your refresh logic here
-    // For example, you can fetch new data from the server
-
-    // After the refresh is done, setRefreshing to false to stop the loading indicator
-    setTimeout(() => {
-      setRefreshing(false);
-    }, 2000);
-  };
 
   useEffect(() => {
     const auth = getAuth();
@@ -58,6 +55,8 @@ export default function Page() {
             component={TabContainer}
             options={{ headerShown: false }}
           />
+
+
           <Stack.Screen
             name="modelScreen"
             component={ModelSecreen}
@@ -66,7 +65,37 @@ export default function Page() {
           <Stack.Screen
             name="resultsScreen"
             component={ResultsScreen}
-            options={{ presentation: "modal" }}
+            options={{ presentation: "modal", headerShown: false }}
+          />
+          <Stack.Screen
+            name="PersonalDetails"
+            component={PersonalDetailsScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="termsandConditions"
+            component={TermsAndConditionsScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="PrivacyPolicy"
+            component={PrivacyPolicyScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="SecuritySettings"
+            component={UserSecuritySettings}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Accessibility"
+            component={Accessibility}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Aboutpage"
+            component={AboutUs}
+            options={{ headerShown: false }}
           />
         </>
       ) : (
@@ -86,12 +115,21 @@ export default function Page() {
             component={ForgotPasswordScreen}
             options={{ headerShown: false }}
           />
+          <Stack.Screen
+            name="termsandConditions"
+            component={TermsAndConditionsScreen}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="PrivacyPolicy"
+            component={PrivacyPolicyScreen}
+            options={{ headerShown: false }}
+          />
         </>
       )}
     </Stack.Navigator>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {

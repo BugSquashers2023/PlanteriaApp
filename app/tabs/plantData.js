@@ -1,60 +1,402 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, ScrollView, FlatList } from 'react-native';
-import React, {useState} from 'react';
-import { FlashMode } from 'expo-camera';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  FlatList,
+  ScrollView,
+  TextInput
+} from "react-native";
+import { db } from "../Data/Firebase";
+import {
+  collection,
+  addDoc,
+  deleteDoc,
+  doc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
+import plants from "../Data/json";
+import { Picker } from "@react-native-picker/picker";
 
 const PlantData = () => {
+  const [tasks, setTasks] = useState([]);
+  const [selectedType, setSelectedType] = useState("plant");
+  const [selectedItem, setSelectedItem] = useState("");
+  const [daysToGrow, setDaysToGrow] = useState("");
+  const [isPickerVisible, setPickerVisible] = useState(false);
+  const [customPlant, setCustomPlant] = useState("");
+  const [customDays, setCustomDays] = useState("");
 
-  const video= React.useRef(null);
-  const [status,setStatus]= useState({});
-  const [statusSecond,setStatusSecond]= useState({});
+  useEffect(() => {
+    fetchTasks();
+  }, []);
 
-  const data = [
-    {name: "Tomato", content: "Tomato is a tropical fruit that is cultivated in tropical climates. Tomatoes are commonly grown in tropical climates.", image: "https://firebasestorage.googleapis.com/v0/b/mypractice-252dc.appspot.com/o/Images%2FTomatoes.jpg?alt=media&token=20e44059-adbb-41a8-8fd7-2f4a1dd5cf20"},
+  const fetchTasks = async () => {
+    const querySnapshot = await getDocs(collection(db, "plants"));
+    const taskList = querySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      text: doc.data().text,
+      inputDays: doc.data().inputDays,
+    }));
+    setTasks(taskList);
+  };
 
-    {name: "Beetroot", content: "Sow the seeds 10cm apart, then cover with about 2.5cm of compost. then water it regularly", image: "https://firebasestorage.googleapis.com/v0/b/mypractice-252dc.appspot.com/o/Images%2FBeetroot.jpg?alt=media&token=d846e42b-7548-4485-a052-05f9b8de14f6"},
+  const openPicker = () => {
+    setPickerVisible(true);
+  };
 
-    {name: "Cabbage", content: "Cabbages are heavy feeders and need a good deal of compost dug into the planting area before planting.Make sure the soil is well-draining, if the roots stand in water, it could cause the head to split and rot.From seed, cabbages take 60-100 days to mature into well formed heads that are ready for harvest.", image: "https://firebasestorage.googleapis.com/v0/b/mypractice-252dc.appspot.com/o/Images%2FCabbagejpg.jpg?alt=media&token=62d9288b-4b17-4ddf-a7d2-31ec0ac76c2d"},
+  const closePicker = () => {
+    setPickerVisible(false);
+  };
 
-    {name: "Carrots", content: "We recommend sowing seeds directly in the garden (or wherever you plan to grow them) rather than transplanting.Carrots do not like to have their roots disturbed. Sow 1/4 inch deep, 2 to 3 inches apart in rows 1 foot apart.Tip: Try to distribute seed in an even fashion so that seeds don't grow together. The best months to grow them is between April and July. Days to Harvest: 55-80 days, depending on variety.", image: "https://firebasestorage.googleapis.com/v0/b/mypractice-252dc.appspot.com/o/Images%2FCarrotsjpg.jpg?alt=media&token=ddab8e42-93a6-43c6-85fa-a344f6ba72b2"},
+  const submitData = async () => {
+    if ((!selectedItem && !customPlant) || !selectedType) {
+      console.log("Invalid item or type");
+      return;
+    }
+  
+    let typeData;
+    let selectedItemName;
+    let daysToGrow;
+  
+    if (selectedType === "other") {
+      if (!customPlant || !customDays) {
+        console.log("Invalid custom plant data");
+        return;
+      }
+      selectedItemName = customPlant;
+      daysToGrow = parseInt(customDays, 10);
+    } else {
+      selectedItemName = selectedItem;
+      if (selectedType === "plant") {
+        typeData = plants.plants;
+      } else if (selectedType === "vegetable") {
+        typeData = plants.vegetables;
+      } else if (selectedType === "fruit") {
+        typeData = plants.fruits;
+      }
+  
+      const selectedItemData = typeData.find(
+        (item) => item.name.toLowerCase() === selectedItem.toLowerCase()
+      );
+  
+      if (!selectedItemData) {
+        console.log("Selected item not found in data");
+        return;
+      }
+  
+      daysToGrow = parseInt(selectedItemData.daysToGrow, 10);
+    }
+  
+    const daysLeft = calculateDaysLeft(daysToGrow);
+  
+    try {
+      const currentDate = new Date();
+      const futureDate = new Date();
+      futureDate.setDate(currentDate.getDate() + daysToGrow);
+  
+      const docRef = await addDoc(collection(db, "plants"), {
+        text: selectedItemName,
+        inputDays: daysLeft,
+        futureDate: futureDate.toISOString(),
+      });
+  
+      setTasks([
+        ...tasks,
+        { id: docRef.id, text: selectedItemName, inputDays: daysLeft },
+      ]);
+  
+  
+      setSelectedItem("");
+      setCustomPlant(""); // Reset customPlant
+      setDaysToGrow(""); // Reset daysToGrow
+      setCustomDays(""); // Reset customDays
+      setSelectedType(""); // Reset selectedType
+  
+      setPickerVisible(false);
+    } catch (error) {
+      console.error("Error adding document: ", error);
+    }
+  };
+  
 
-    {name: "Potatoes", content: "Dig straight, shallow trenches, 2 to 3 feet apart, in prepared soil. Plant seed potatoes 12 inches apart, and cover with about 3 inches of soil. When the shoots reach 10 to 12 inches tall, use a hoe or shovel to scoop soil from between rows and mound it against the plants, burying the stems halfway", image: "https://firebasestorage.googleapis.com/v0/b/mypractice-252dc.appspot.com/o/Images%2FPotatoes.jpg?alt=media&token=1880f78c-f22f-4e47-bb68-7ca263a8a171"},
+  const calculateDaysLeft = (inputNumber) => {
+    if (!inputNumber) return "";
 
-    {name: "Oranges", content: "To grow oranges we need sunlight, water, and good cultural practices such as fertilizers and pruning. Our trees also like about 30 days of 32 degree temperature to help maintain the firmness and freshness of the fruit. The cooler temperatures limit leaf growth aiding in the ripening and longevity of the fruit.", image: "https://firebasestorage.googleapis.com/v0/b/mypractice-252dc.appspot.com/o/Images%2FOrangesjpg.jpg?alt=media&token=a3d92a3d-427c-4582-a5ad-8dbb765de8e1"},
-  ]
+    const currentDate = new Date();
+    const futureDate = new Date();
+    futureDate.setDate(currentDate.getDate() + inputNumber);
+
+    const timeDiff = futureDate.getTime() - currentDate.getTime();
+    const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+
+    return daysDiff.toString();
+  };
+
+  const deleteItem = async (itemId) => {
+    try {
+      await deleteDoc(doc(db, "plants", itemId));
+      setTasks(tasks.filter((taskItem) => taskItem.id !== itemId));
+      console.log("Document deleted successfully:", itemId);
+    } catch (error) {
+      console.error("Error deleting document:", error);
+    }
+  };
+
+  const submitCustomPlant = () => {
+    if (!customPlant || !customDays || !selectedType) {
+      console.log("Invalid custom plant data");
+      return;
+    }
+
+    submitData();
+  };
 
   return (
-    <View style={{flex: 1, marginTop: 15}}>
-      {/* <Text style={{marginTop: 25, marginLeft: "auto", marginRight: "auto", fontSize: 19}}>plants Information</Text> */}
-      <FlatList 
-        data={data}
-        renderItem={({item}) => (
-          <View style={styles.container}>
-            <Image source={{ uri: item.image}} style={styles.plantImage}/>
-            <Text style={{fontSize: 20, padding: 8, color: "green"}}>{item.name}</Text>
-            <Text style={{paddingLeft: 8, paddingRight: 8, paddingBottom: 8}}>{item.content}</Text>
+    <View style={styles.container}>
+      
+      
+      <Text style={styles.header}>Plants and Days Countdown</Text>
+
+      <Picker
+        selectedValue={selectedType}
+        onValueChange={(itemValue) => setSelectedType(itemValue)}
+        style={styles.pickerContainer}
+      >
+        <Picker.Item label="Select a category..." value="" />
+        <Picker.Item label="Plant" value="plant" />
+        <Picker.Item label="Vegetable" value="vegetable" />
+        <Picker.Item label="Fruit" value="fruit" />
+        <Picker.Item label="Other" value="other" />
+      </Picker>
+
+      {selectedType === "other" && (
+        <View style={styles.customPlantContainer}>
+        <TextInput
+          placeholder="Enter Custom Plant"
+          value={customPlant}
+          onChangeText={setCustomPlant}
+          style={styles.customPlantInput}
+        />
+        <TextInput
+          placeholder="Days to Grow"
+          value={customDays}
+          onChangeText={setCustomDays}
+          keyboardType="numeric"
+          style={styles.customDaysInput}
+        />
+        <TouchableOpacity
+          style={styles.customPlantSubmitButton}
+          onPress={submitCustomPlant}
+        >
+          <Text style={styles.customPlantSubmitButtonText}>Submit</Text>
+        </TouchableOpacity>
+      </View>
+      )}
+
+      {selectedType !== "" && (
+        <TouchableOpacity style={styles.pickerButton} onPress={openPicker}>
+          <Text style={styles.pickerButtonText}>Select {selectedType}</Text>
+        </TouchableOpacity>
+      )}
+
+      {isPickerVisible && (
+        <View style={styles.pickerContainer}>
+          <Picker
+            selectedValue={selectedItem}
+            onValueChange={(itemValue) => setSelectedItem(itemValue)}
+            style={styles.picker}
+            enabled={selectedType !== ""}
+          >
+            <Picker.Item label={`Select a ${selectedType}...`} value="" />
+            {selectedType === "plant" &&
+              plants.plants.map((item) => (
+                <Picker.Item
+                  key={item.name}
+                  label={item.name}
+                  value={item.name}
+                />
+              ))}
+            {selectedType === "vegetable" &&
+              plants.vegetables.map((item) => (
+                <Picker.Item
+                  key={item.name}
+                  label={item.name}
+                  value={item.name}
+                />
+              ))}
+            {selectedType === "fruit" &&
+              plants.fruits.map((item) => (
+                <Picker.Item
+                  key={item.name}
+                  label={item.name}
+                  value={item.name}
+                />
+              ))}
+          </Picker>
+          <View style={styles.pickerButtonContainer}>
+            <TouchableOpacity
+              style={styles.pickerCancelButton}
+              onPress={closePicker}
+            >
+              <Text style={styles.pickerCancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.pickerConfirmButton}
+              onPress={() => {
+                closePicker();
+                submitData();
+              }}
+            >
+              <Text style={styles.pickerConfirmButtonText}>Confirm</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      <FlatList
+        style={styles.taskList}
+        data={tasks}
+        renderItem={({ item }) => (
+          <View style={styles.taskItem}>
+            <Text style={styles.plantname}>{item.text}:</Text>
+            <Text style={styles.daysLeft}>{`Days Left: ${item.inputDays}`}</Text>
+            <TouchableOpacity onPress={() => deleteItem(item.id)}>
+              <Text style={styles.deleteButton}>Delete</Text>
+            </TouchableOpacity>
           </View>
         )}
+        keyExtractor={(item) => item.id}
       />
     </View>
-); 
-}
+  );
+};
 
 const styles = StyleSheet.create({
-  plantImage:{
-    width: "100%",
-    height: 170,
-    borderRadius: 8
+  container: {
+    flex: 1,
+    padding: 20,
+    marginTop:20,
+    marginBottom: 10,
   },
-  container:{
-    marginTop: 25,
-    marginLeft: "5%",
-    marginRight: "5%",
-    backgroundColor: "#FFFDD0",
-    borderBottomLeftRadius: 8,
-    borderBottomRightRadius: 8,
-  }
+  
+  header: {
+    fontSize: 20,
+    textAlign: "center",
+    fontWeight: "bold",
+    marginBottom: 20,
+    marginTop: 15,
+  },
+  picker: {
+    backgroundColor: "white",
+    borderRadius: 5,
+  },
+  pickerButton: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    marginTop: 10,
+  },
+  pickerButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  pickerContainer: {
+    backgroundColor: "white",
+    borderRadius: 10,
+    elevation: 5,
+    marginTop: 10,
+  },
+  pickerButtonContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+    paddingHorizontal: 15,
+    borderTopWidth: 1,
+    borderTopColor: "#E0E0E0",
+  },
+  pickerCancelButton: {
+    paddingVertical: 10,
+    marginRight: 10,
+  },
+  pickerCancelButtonText: {
+    color: "#FF3B30",
+    fontWeight: "bold",
+  },
+  pickerConfirmButton: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+  },
+  pickerConfirmButtonText: {
+    color: "white",
+    fontWeight: "bold",
+  },
+  taskList: {
+    flex: 1,
+    marginTop: 20,
+  },
+  taskItem: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 20,
+  },
+  plantname: {
+    
+  },
+  daysLeft: {
+    
+  },
+
+  deleteButton: {
+    color: "red",
+  },
+
+  customPlantContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 10,
+  },
+  customPlantInput: {
+    flex: 1,
+    marginRight: 20,
+    paddingHorizontal: 10,
+    backgroundColor: "white",
+    borderRadius: 5,
+    height: 40,
+    borderColor: "#E0E0E0",
+    borderWidth: 1,
+  },
+  customDaysInput: {
+    width: 100,
+    paddingHorizontal: 10,
+    backgroundColor: "white",
+    borderRadius: 5,
+    height: 40,
+    borderColor: "#E0E0E0",
+    borderWidth: 1,
+    marginRight:10,
+  },
+  customPlantSubmitButton: {
+    backgroundColor: "#007AFF",
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    height: 40,
+    justifyContent: "center", // Vertically align the text within the button
+    alignItems: "center", // Horizontally align the text within the button
+  },
+  customPlantSubmitButtonText: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
 });
 
 export default PlantData;
-

@@ -11,9 +11,8 @@ import {
 import CustomInput from "../customs/CustomInput/CustomInput";
 import CustomButton from "../customs/CustomButton/CustomButton";
 import SocialSignInButtons from "../customs/SocialSignInButtons/SocialSignInButtons";
-import { auth } from "../Data/Firebase";
-import { db } from "../Data/Firebase";
-import { collection, addDoc,doc, setDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore"; // Import doc and setDoc functions
+import { auth, db } from "../Data/Firebase"; // Make sure you have a consistent approach for importing auth and db
 import "firebase/firestore";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useNavigation } from "expo-router";
@@ -47,7 +46,7 @@ const SignUpScreen = () => {
     );
 
     if (isValid) {
-      setIsLoading(true); // Start loading animation
+      setIsLoading(true);
 
       try {
         const userCredential = await createUserWithEmailAndPassword(
@@ -57,7 +56,6 @@ const SignUpScreen = () => {
         );
         const user = userCredential.user;
 
-        // Use the user's UID as the document ID in Firestore
         const userRef = doc(db, "users", user.uid);
         await setDoc(userRef, {
           firstname: firstname,
@@ -67,8 +65,9 @@ const SignUpScreen = () => {
         });
 
         console.log("User data added to Firestore successfully!");
-        navigation.navigate('tabContainer');
+        navigation.navigate("tabContainer");
       } catch (error) {
+        // Handle authentication errors
         if (error.code === "auth/email-already-in-use") {
           setEmailError("That email address is already in use!");
         } else if (error.code === "auth/invalid-email") {
@@ -80,8 +79,9 @@ const SignUpScreen = () => {
         }
       }
 
-      setIsLoading(false); // Stop loading animation
+      setIsLoading(false);
     } else {
+      // Display form validation errors
       setEmailError(errors.email || "");
       setPasswordError(errors.password || "");
       setFirstNameError(errors.firstname || "");
@@ -155,11 +155,13 @@ const SignUpScreen = () => {
   };
 
   const onTermsOfUsePressed = () => {
-    console.warn("onTermsOfUsePressed");
+    navigation.navigate("termsandConditions");
   };
 
+  
+
   const onPrivacyPressed = () => {
-    console.warn("onPrivacyPressed");
+    navigation.navigate("PrivacyPolicy");
   };
 
   return (

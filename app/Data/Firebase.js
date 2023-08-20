@@ -1,16 +1,15 @@
 import { initializeApp } from 'firebase/app';
 import { getFirestore, getDoc, doc, collection } from 'firebase/firestore';
-import { getAuth, GoogleAuthProvider, updateProfile } from 'firebase/auth'
+import { getAuth, GoogleAuthProvider, updateProfile, deleteUser, EmailAuthProvider  } from 'firebase/auth'
 import { updateDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyC_blvvt8jnNr5HN969W0L8ep0nnsloSBk",
-  authDomain: "planteria-67b79.firebaseapp.com",
-  databaseURL: "https://planteria-67b79-default-rtdb.firebaseio.com",
-  projectId: "planteria-67b79",
-  storageBucket: "planteria-67b79.appspot.com",
-  messagingSenderId: "172369811242",
-  appId: "1:172369811242:web:81b51a819ae636bb75b053"
+  apiKey: "AIzaSyBAMcHsp0cV68ziobGVVJoHlu5f5nMc8oY",
+  authDomain: "planteria-e5b8c.firebaseapp.com",
+  projectId: "planteria-e5b8c",
+  storageBucket: "planteria-e5b8c.appspot.com",
+  messagingSenderId: "602430489366",
+  appId: "1:602430489366:web:70b3053a31c1fa14004637"
 };
 
 

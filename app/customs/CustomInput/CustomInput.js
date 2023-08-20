@@ -21,7 +21,7 @@ const CustomInput = ({ value, setValue, placeholder, secureTextEntry, error, onC
       />
       {secureTextEntry && (
         <TouchableOpacity style={styles.showPasswordButton} onPress={toggleShowPassword}>
-          <Ionicons name={showPassword ? 'eye-off' : 'eye'} size={24} color="gray" />
+          <Ionicons name={showPassword ? 'eye' : 'eye-off'} size={24} color="gray" />
         </TouchableOpacity>
       )}
       {/* {error && <Text style={styles.errorText}>{error}</Text>} */}

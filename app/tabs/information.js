@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, Pressable, Alert,RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Image, Pressable, Alert,RefreshControl, ScrollView } from 'react-native';
 import { useNavigation } from 'expo-router';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../Data/Firebase';
@@ -42,6 +42,7 @@ const Information = () => {
   };
 
   return (
+    
     <View style={{ flex: 1, marginTop: 40 }}>
       <FlatList
         data={data}
@@ -61,6 +62,7 @@ const Information = () => {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       />
     </View>
+    
   );
 };
 

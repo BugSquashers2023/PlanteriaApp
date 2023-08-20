@@ -20,7 +20,7 @@ const ForgotPasswordScreen = () => {
       sendPasswordResetEmail(auth, email)
         .then(() => {
           setEmailError(''); // Clear the error message if email is successfully sent
-          navigation.navigate('SignInScreen'); // Navigate back to SignInScreen or any other appropriate screen
+          navigation.navigate('signInScreen'); // Navigate back to SignInScreen or any other appropriate screen
         })
         .catch((error) => {
           setEmailError('Error sending email. Please check the email address and try again.');
@@ -30,7 +30,7 @@ const ForgotPasswordScreen = () => {
   };
 
   const onSignInPress = () => {
-    navigation.navigate('SignInScreen');
+    navigation.navigate('signInScreen');
   };
 
   return (
