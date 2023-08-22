@@ -21,6 +21,7 @@ import {
 import plants from "../Data/json";
 import { Picker } from "@react-native-picker/picker";
 
+
 const PlantData = () => {
   const [tasks, setTasks] = useState([]);
   const [selectedType, setSelectedType] = useState("plant");
@@ -33,6 +34,8 @@ const PlantData = () => {
   useEffect(() => {
     fetchTasks();
   }, []);
+
+  
 
   const fetchTasks = async () => {
     const querySnapshot = await getDocs(collection(db, "plants"));
@@ -62,6 +65,20 @@ const PlantData = () => {
     let selectedItemName;
     let daysToGrow;
   
+    // if (daysLeft === '0') {
+    //   try {
+    //     const notification = new firebase.notifications.Notification()
+    //       .setNotificationId('notificationId')
+    //       .setTitle('Plant Ready!')
+    //       .setBody(`Your ${selectedItemName} is ready to be harvested!`);
+  
+    //     // Display the notification
+    //     firebase.notifications().displayNotification(notification);
+    //   } catch (error) {
+    //     console.error('Error sending notification:', error);
+    //   }
+    // }
+    
     if (selectedType === "other") {
       if (!customPlant || !customDays) {
         alert("Invalid custom plant data");
@@ -261,6 +278,7 @@ const PlantData = () => {
         style={styles.taskList}
         data={tasks}
         renderItem={({ item }) => (
+          
           <View style={styles.taskItem}>
             <Text style={styles.plantname}>{item.text}:</Text>
             <Text style={styles.daysLeft}>{`Days Left: ${item.inputDays}`}</Text>
@@ -347,12 +365,14 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     marginBottom: 20,
+    
   },
   plantname: {
     
   },
   daysLeft: {
-   paddingStart:2 
+  
+   paddingStart:2
   },
 
   deleteButton: {

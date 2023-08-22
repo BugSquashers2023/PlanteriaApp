@@ -15,6 +15,7 @@ const Graphs = () => {
             phosphorous: {min: 4.6 ,max: 7},
             potassium:{min: 10, max: -9}        
         },
+        
         {
             plantName: "Potatoe",
             plantType:"Veg",
@@ -41,7 +42,6 @@ const Graphs = () => {
         },
 
     ];
-    
     const[temperature, setTemperature] = useState('');
     const[soilType, setSoilType] = useState('');
     const[nitrogen, setNitrogen] = useState('');

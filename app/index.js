@@ -62,11 +62,14 @@ export default function Page() {
             component={ModelSecreen}
             options={{ presentation: "modal", headerShown: false }}
           />
+          
+        
           <Stack.Screen
             name="resultsScreen"
             component={ResultsScreen}
             options={{ presentation: "modal", headerShown: false }}
           />
+          
           <Stack.Screen
             name="PersonalDetails"
             component={PersonalDetailsScreen}
