@@ -38,25 +38,20 @@ import {
   uploadString,
   getDownloadURL,
 } from "firebase/storage";
+import LoadingAnimation from "../customs/Custom-Animations/Loader";
 
 import { useNavigation } from "expo-router";
 
 const Settings = () => {
   // const colorScheme = useColorScheme(); // Get the current color scheme (light or dark)
 
-  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+  const [isLoadingLogout, setIsLoadingLogout] = useState(false);
   const [firstname, setFirstName] = useState("");
-  const [email, setEmail] = useState("");
   const [lastname, setLastName] = useState("");
-  const [phonenumber, setPhoneNumber] = useState("");
-  const [password, setPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
   const [profilePictureURI, setProfilePictureURI] = useState(null);
-  const [image, setImage] = useState(null);
-  const [showModal, setShowModal] = useState(false);
   const [userData, setUserData] = useState(null);
   const navigation = useNavigation();
-  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+ 
   const [isLoading, setIsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -93,11 +88,19 @@ const Settings = () => {
 
   const auth = getAuth();
 
-  const onLogout = () => {
-    auth.signOut();
-    const onSignUpPress = () => {
+  const onLogout = async () => {
+    setIsLoadingLogout(true); // Start loading animation
+    try {
+      await auth.signOut();
       navigation.navigate("signInScreen");
-    };
+    } catch (error) {
+      console.error("Error logging out:", error);
+    } finally {
+      // Stop  loading animation
+      setTimeout(() => {
+        setIsLoadingLogout(false);
+      }, 5000);
+    }
   };
 
   useEffect(() => {
@@ -136,73 +139,6 @@ const Settings = () => {
     }
   };
 
-  // Function to handle selecting a new profile picture from the camera roll
-  const pickProfilePicture = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
-    });
-
-    console.log(result);
-
-    if (!result.canceled) {
-      const uploadURL = await uploadProfilePicture(result.assets[0].uri);
-      setImage(uploadURL);
-      setInterval(() => {
-        setIsLoading(false);
-      }, 2000);
-    } else {
-      setImage(null);
-      setInterval(() => {
-        setIsLoading(false);
-      }, 2000);
-    }
-  };
-
-  const uploadProfilePicture = async (uri) => {
-    // Why are we using XMLHttpRequest? See:
-    // https://github.com/expo/expo/issues/2402#issuecomment-443726662
-    const blob = await new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.onload = function () {
-        resolve(xhr.response);
-      };
-      xhr.onerror = function (e) {
-        console.log(e);
-        reject(new TypeError("Network request failed"));
-      };
-      xhr.responseType = "blob";
-      xhr.open("GET", uri, true);
-      xhr.send(null);
-    });
-
-    try {
-      const storageRef = ref(storage, `Images/image-${Date.now()}`);
-      const result = await uploadBytes(storageRef, blob);
-
-      // Close the blob
-      blob.close();
-      return await getDownloadURL(storageRef);
-    } catch (error) {
-      console.error("Error uploading image:", error);
-      return null; // Return null in case of error
-    }
-  };
-
-  // Use useEffect to handle profile picture selection only once when the component mounts
-  useEffect(() => {
-    (async () => {
-      const { status } =
-        await ImagePicker.requestMediaLibraryPermissionsAsync();
-      if (status !== "granted") {
-        console.log(
-          "Sorry, we need camera roll permissions to make this work!"
-        );
-      }
-    })();
-  }, []);
 
   const fetchUserData = async () => {
     const user = auth.currentUser;
@@ -213,14 +149,12 @@ const Settings = () => {
         if (docSnap.exists()) {
           setUserData({ ...docSnap.data(), id: docSnap.id }); // Include the document ID in the user data
           setFirstName(docSnap.data().firstname);
-          setLastName(docSnap.data().lastname);
-          setPhoneNumber(docSnap.data().phoneNumber);
-          setEmail(docSnap.data().email);
+          
         } else {
-          console.log("No such document!");
+          alert("Profile Doesn't exist");
         }
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.log("Error fetching user data:", error);
       }
     }
   };
@@ -338,6 +272,9 @@ const Settings = () => {
           />
         </TouchableOpacity>
       </View>
+      {isLoadingLogout && (
+        <LoadingAnimation  visible={isLoadingLogout} />
+      )}
     </ScrollView>
   );
 };

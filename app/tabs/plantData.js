@@ -6,7 +6,8 @@ import {
   StyleSheet,
   FlatList,
   ScrollView,
-  TextInput
+  TextInput,
+  
 } from "react-native";
 import { db } from "../Data/Firebase";
 import {
@@ -53,7 +54,7 @@ const PlantData = () => {
 
   const submitData = async () => {
     if ((!selectedItem && !customPlant) || !selectedType) {
-      console.log("Invalid item or type");
+      alert("Invalid item or type");
       return;
     }
   
@@ -63,7 +64,7 @@ const PlantData = () => {
   
     if (selectedType === "other") {
       if (!customPlant || !customDays) {
-        console.log("Invalid custom plant data");
+        alert("Invalid custom plant data");
         return;
       }
       selectedItemName = customPlant;
@@ -83,7 +84,7 @@ const PlantData = () => {
       );
   
       if (!selectedItemData) {
-        console.log("Selected item not found in data");
+        alert("Selected item not found in data");
         return;
       }
   
@@ -117,7 +118,7 @@ const PlantData = () => {
   
       setPickerVisible(false);
     } catch (error) {
-      console.error("Error adding document: ", error);
+      alert("Error adding document: ", error);
     }
   };
   
@@ -139,15 +140,15 @@ const PlantData = () => {
     try {
       await deleteDoc(doc(db, "plants", itemId));
       setTasks(tasks.filter((taskItem) => taskItem.id !== itemId));
-      console.log("Document deleted successfully:", itemId);
+      alert("Document deleted successfully:", itemId);
     } catch (error) {
-      console.error("Error deleting document:", error);
+      alert("there's Error deleting document:", error);
     }
   };
 
   const submitCustomPlant = () => {
     if (!customPlant || !customDays || !selectedType) {
-      console.log("Invalid custom plant data");
+      alert("Invalid custom plant data");
       return;
     }
 
@@ -351,7 +352,7 @@ const styles = StyleSheet.create({
     
   },
   daysLeft: {
-    
+   paddingStart:2 
   },
 
   deleteButton: {

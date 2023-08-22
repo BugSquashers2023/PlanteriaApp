@@ -7,6 +7,7 @@ import SocialSignInButtons from '../customs/SocialSignInButtons/SocialSignInButt
 import { useNavigation } from '@react-navigation/native';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../Data/Firebase';
+import LoadingAnimation from '../customs/Custom-Animations/Loader';
 
 const SignInScreen = () => {
   const [email, setEmail] = useState('');
@@ -38,7 +39,9 @@ const SignInScreen = () => {
       alert(errorMessage);
     }
 
-    setIsLoading(false); // Stop loading animation
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 5000);
   };
 
   const onEmailChange = (text) => {
@@ -87,7 +90,7 @@ const SignInScreen = () => {
 
         <CustomButton text="Sign In" onPress={onSignInPressed} />
 
-        {isLoading && <ActivityIndicator size="large" color="#051C60" />}
+        
 
         <CustomButton
           text="Forgot password?"
@@ -102,7 +105,9 @@ const SignInScreen = () => {
           onPress={onSignUpPress}
           type="TERTIARY"
         />
+        
       </View>
+      {isLoading && <LoadingAnimation  />}
     </ScrollView>
   );
 };

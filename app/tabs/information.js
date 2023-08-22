@@ -5,7 +5,8 @@ import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../Data/Firebase';
 
 const Information = () => {
-  const [data, setData] = useState([]);
+
+  const [data, setData] = useState();
   const navigation = useNavigation();
   const [refreshing, setRefreshing] = useState(false);
 
@@ -14,6 +15,7 @@ const Information = () => {
       const querySnapshot = await getDocs(collection(db, "user_plant_details"));
       const fetchedData = querySnapshot.docs.map((doc) => doc.data());
       setData(fetchedData);
+      console.log(data);
     } catch (error) {
       console.error("Error fetching data: ", error);
     } finally {
@@ -36,9 +38,9 @@ const Information = () => {
     fetchPlantsData();
   };
 
-  const openImage = (e, plantName, plantDate, plantImage, plantData) => {
+  const openImage = (e, problem, description, images, treatment) => {
     e.preventDefault();
-    navigation.navigate('modelScreen', { plantName, plantDate, plantImage, plantData });
+    navigation.navigate('modelScreen', { problem, description, images, treatment });
   };
 
   return (
@@ -48,14 +50,13 @@ const Information = () => {
         data={data}
         renderItem={({ item }) => (
           <Pressable
-            onPress={(e) => openImage(e, item.plantName, item.date, item.images[0].url, item.plantData)}
+            onPress={(e) => openImage(e, item.problem, item.description, item.images, item.treatment)}
             style={myStyles.container}
           >
-            <Image source={{ uri: item.images[0].url }} style={myStyles.image} />
+            <Image source={{ uri: item.images }} style={myStyles.image} />
 
             <View style={myStyles.textStyle}>
-              <Text style={{ fontSize: 17, fontWeight: 'bold' }}>{item.plantName}</Text>
-              <Text>{item.date}</Text>
+              <Text style={{ fontSize: 17, fontWeight: 'bold' }}>{item.problem}</Text>
             </View>
           </Pressable>
         )}

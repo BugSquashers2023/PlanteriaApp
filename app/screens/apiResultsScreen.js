@@ -1,19 +1,31 @@
 import { useState, useEffect } from "react";
-import { View, Text, Modal, Image, StyleSheet, FlatList, Pressable, useWindowDimensions } from "react-native";
-import { ScrollView } from "react-native-gesture-handler";
+import { View, Text, Alert, Image, StyleSheet, FlatList, Pressable, useWindowDimensions, ScrollView } from "react-native";
 import CustomButton from "../customs/CustomButton/CustomButton";
 import CustomLoader from "../customs/CustomLoading/customLoader";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import LoadingAnimation from "../customs/Custom-Animations/PlantLoader";
+
 import { collection, addDoc, Timestamp, doc, setDoc } from 'firebase/firestore';
 import { db, auth  } from '../Data/Firebase'; 
+
 const ResultsScreen = ({ route, navigation }) => {
-    const { data } = route.params;
-    const [viewItem, setViewItem] = useState(false);
-    const [chosenDetails, setChosenDetails] = useState();
-    const { width } = useWindowDimensions();
+
+    const [isLoading, setIsLoading] = useState(false);
+    const{data} = route.params;
+    //const{email} = route.params;
+    const{isHealthy} = route.params;
+    //console.log("is plant healthy? ", isHealthy);
+    //console.log(data[2].disease_details.treatment);
+    const{scanImg} = route.params;
+    //console.log(scanImg); 
+    const[viewItem, setViewItem] = useState(false);
+    const[chosenDetails, setChosenDetails] = useState();
+
     const [userId, setUserId] = useState(null); // Add the userId state here
 
     // Fetch the user's UID from Firebase Authentication
     const fetchUserId = async () => {
+        
         try {
             const user = auth.currentUser;
             if (user) {
@@ -22,6 +34,7 @@ const ResultsScreen = ({ route, navigation }) => {
         } catch (error) {
             console.error("Error fetching user ID:", error);
         }
+       
     };
 
     useEffect(() => {
@@ -31,15 +44,11 @@ const ResultsScreen = ({ route, navigation }) => {
     const saveDetailsToFirestore = async () => {
         // Get the current timestamp as the date taken
         const dateTaken = Date.now();
+        setIsLoading(true); // Start loading animation
         try {
             // Use the user's UID as the document ID
             const userPlantRef = doc(db, 'user_plant_details', userId);
-            await setDoc(userPlantRef, {
-                plantName: chosenDetails.name,
-                plantData: chosenDetails.plantData,
-                images: chosenDetails.images,
-                dateTaken: Timestamp.fromMillis(dateTaken), // Convert dateTaken to a Firestore Timestamp
-            });
+            await setDoc(userPlantRef, chosenDetails);
     
             console.log('User plant data added to Firestore successfully!');
             // You can perform any additional actions after the details are saved here.
@@ -47,90 +56,165 @@ const ResultsScreen = ({ route, navigation }) => {
             console.error('Error adding user plant document: ', error);
             // Handle any errors that occur during the saving process
         }
+        setTimeout(() => {
+            setIsLoading(false);
+          }, 5000);
     };
 
+    const viewEach = (e, name, cause, description,  treatment, ) => {
+        e.preventDefault();
+        setChosenDetails({description: description, problem: name, treatment: treatment, images: scanImg});
+        setViewItem(true);
+        //console.log(treatment);
+      }
+
     return(
-        
-    <View style={{flex: 1, marginTop: 40}}>  
-        {!viewItem ? (<View>
-        <Text style={{marginLeft:"auto", marginRight:"auto", fontSize:18}}>Possible Suggestions</Text>     
-        <FlatList 
-          data={data}
-          renderItem={({item}) => (
-            <Pressable onPress={() => {            
-                setChosenDetails({plantData: item.plant_details, name: item.plant_name, images: item.similar_images})
-                details = {plantData: item.plant_details, name: item.plant_name, images: item.similar_images};
-                //console.log(details.images);
-                setViewItem(true);
-            }} 
-            style={myStyles.container}>
-             <Image source={{ uri: item.similar_images[0].url }} style={myStyles.image} /> 
+        <View style={{flex: 1, }}>  
 
-              <View style={myStyles.textStyle}>
-                <Text style={{fontSize: 17, fontWeight: 'bold'}}>{item.plant_name}</Text>
-                <Text >{item.probability}</Text>
-              </View>             
-            </Pressable>
-          )}
-        />
-        </View>) : (<View>
-            <ScrollView>
-               <FlatList 
-               data={chosenDetails.images}
-               renderItem={({img}) => (
-                    <Image source={{ uri: img }} style={{width, height: 290, aspectRatio: 1, marginLeft: "auto", marginRight: "auto", borderRadius: 8,}} />
-                    
-               )}
-                   horizontal
-                   showsHorizontalScrollIndicator={false} 
-                   pagingEnabled
-               />
-                {/* <Image source={{ uri: chosenDetails.images[0].url }} style={{width, height: 290, aspectRatio: 1, marginLeft: "auto", marginRight: "auto", borderRadius: 8,}} /> */}
+        {isHealthy ? (
+          <View>   
 
-                <View style={{margin: 10}}>
-                    <Text style={{fontSize: 19, color: "green"}}>{chosenDetails.name}</Text>
-                    <Text>{chosenDetails.plantData.wiki_description.value}</Text>
-                </View>
-                <View style={{justifyContent: "center", alignItems: "center"}}>
-                    <CustomButton text="save" onPress={saveDetailsToFirestore} />
-                    <CustomButton text="discard" />
-                </View>
-            </ScrollView>
-        </View>)}
-    </View>
+            <Image style={myStyles.healthImage} source={{ uri:scanImg }} />
+           
+            <View style={myStyles.healthyBody}>
+              <Ionicons name="checkmark-done-circle-outline" color="green" size="58"/>
+              <Text style={{fontSize: 20, color:"green"}}>plant is healthy</Text>
+            </View>
+  
+          </View>) : (
+          <View>
+            {!viewItem ? (
+  
+              <ScrollView  style={myStyles.container}>
+              <Image style={myStyles.scannedImage} source={{ uri:scanImg }} />
+  
+              <Text style={{fontSize: 20, color: "green", textAlign: "center"}}> Possible ploblems: </Text>
+  
+              {data.map((item, index) => {
+                return(
+                  <Pressable key={index} onPress={(e) => {viewEach(e, item.name, item.disease_details.cause, item.disease_details.description, item.disease_details.treatment)}} style={myStyles.diseaseList}>
+                    <Text>problem: {item.name}</Text>
+                    <Text>cause: {item.disease_details.cause}</Text>
+                    <Text>description</Text>
+                    <Text>{item.disease_details.description}</Text>
+                  </Pressable>
+                )
+              })}
+  
+              {/* <CustomButton text="Close" styele={{marginBottom: 10, marginRight: "auto", }}/> */}
+  
+              </ScrollView>   
+              ) : (<ScrollView>
+  
+              <View style={myStyles.itemContainer}>
+                <Text style={{fontSize: 20, marginTop: 5, color: "red"}}>Problem: {chosenDetails.problem}</Text>
+                <Text>description: {chosenDetails.description}</Text>
+                <Text>treatment:</Text>
+  
+              <Text style={{fontSize: 20, marginTop: 5}}>Biological Solution</Text>
+                {
+                  chosenDetails.treatment.biological != undefined ? (
+                    chosenDetails.treatment.biological.map((plant, index) => {           
+                      return(
+                        <View key={index}>
+                          <Text>{plant}</Text>
+                        </View>
+                      )
+                    })
+                  ) : (<View><Text>No data</Text></View>)
+                }
+                
+  
+                <Text style={{fontSize: 20, marginTop: 5}}>chemical Solution</Text>
+                {
+                  chosenDetails.treatment.chemical != undefined ? (
+                    chosenDetails.treatment.chemical.map((plant, index) => {           
+                      return(
+                        <View key={index}>
+                          <Text>{plant}</Text>
+                        </View>
+                      )
+                    })
+                  ) : (<View><Text>No chemical Solution found</Text></View>)
+                }
+  
+                <Text style={{fontSize: 20, marginTop: 5}}>Prevention Solution</Text>
+                {
+                  chosenDetails.treatment.prevention != undefined ? (
+                    chosenDetails.treatment.prevention.map((plant, index) => {           
+                      return(
+                        <View key={index}>
+                          <Text>{plant}</Text>
+                        </View>
+                      )
+                    })
+                  ) : (<View><Text>No prevention found</Text></View>)
+                }
+              </View>
+  
+              <View style={myStyles.ButtonContainer}> 
+                <CustomButton text="Save" onPress={saveDetailsToFirestore} />
+                <CustomButton text="Cancel" onPress={() => {setViewItem(!viewItem)}} />
+              </View>
+              {/* {isLoading && <LoadingAnimation  />} */}
+              </ScrollView>)} 
+          </View>
+        )}
+      </View>
     )
 }
 
 const myStyles = StyleSheet.create({
-    //style for the first main list
-    image: {
-        width: 80,
-        height: 80,
-        borderRadius: 50,
-    },
-    container: {
-        width: '90%',
-        display: 'flex',
-        backgroundColor: '#FFFFFF',
-        marginTop: '1%',
-        marginLeft: 'auto',
-        marginRight:'auto',
+    scannedImage:{
+        width: "90%",
+        marginRight: "auto",
+        marginLeft: "auto",
         borderRadius: 8,
-        padding: '2%',
-        flexDirection: 'row',       
-    },
-    textStyle: {
-        justifyContent: 'center',
-        marginLeft: '10%',
-    },
-    headerText: {
-        textAlign: 'center',
-        fontSize: 15,
-        color: 'green',
-        fontWeight: '500',
-    }
-
-    //style for a specific selected plant
+        height: 250,
+        marginTop: 15,
+      },
+      diseaseList:{
+        backgroundColor: "#FAFAFA",
+        borderRadius: 5,
+        marginTop: 10,
+        padding: 5,
+      },
+      container:{
+        marginLeft: 10,
+        marginRight: 10,
+      
+      },
+  
+      //style for a specific selected plant
+      itemContainer:{
+        backgroundColor: "white",
+        marginTop: "3%",
+        marginRight: "3%",
+        marginLeft: "3%",
+        borderRadius: 5,
+        padding: "3%",
+      },
+  
+      ButtonContainer:{
+        justifyContent: "center",
+        alignItems: "center"
+      },
+  
+      //styles for when the image is healthy:
+      healthImage:{
+        width: 250,
+        marginRight: "auto",
+        marginLeft: "auto",
+        borderRadius: 8,
+        height: 250,
+        marginTop: 15,
+        
+      },
+      healthyBody:{
+        marginTop: 100,
+        alignContent:"center",
+        alignItems:"center",
+      }
 })
 
 export default ResultsScreen; 

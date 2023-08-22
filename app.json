@@ -1,7 +1,7 @@
 {
   "expo": {
     "userInterfaceStyle": "automatic",
-    "scheme": "com.bugsquashers.Planteria",
+    "scheme": "mailto",
     "web": {
       "bundler": "metro"
     },

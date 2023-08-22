@@ -1,4 +1,4 @@
-package com.bugsquashers.planteria;
+package com.bugsquashers.Planteria;
 
 import android.os.Build;
 import android.os.Bundle;

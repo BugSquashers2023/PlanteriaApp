@@ -2,6 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createDrawerNavigator } from '@react-navigation/drawer';
+import { StyleSheet, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
 import PlantData from '../tabs/plantData';
@@ -18,42 +19,34 @@ const TabContainer = () => {
   return (
 
     <Tab.Navigator
-      screenOptions={({ route }) => ({
-        tabBarIcon: ({ color, size }) => {
-          let iconName;
-
-          if (route.name === 'plantData') {
-            iconName = 'leaf';
-          } else if (route.name === 'information') {
-            iconName = 'information-circle';
-          } else if (route.name === 'camera') {
-            iconName = 'camera';
-            size += 20;
-          } else if (route.name === 'Graphs') {
-            iconName = 'analytics';
-          } else if (route.name === 'Settings') {
-            iconName = 'settings';
-          }
-
-          return <Ionicons name={iconName} size={30} color={color} style={route.name === 'camera' ? { marginTop: -5 } : {}} />;
-        },
-        tabBarShowLabel: true,
-        tabBarLabelStyle: {
-          fontSize: 10,
-        },
-        tabBarStyle: {
-          backgroundColor: 'white',
-          borderTopWidth: 0,
-        },
-      })}
+    screenOptions={{
+      tabBarActiveTintColor: '#37DAD7',
+      tabBarInactiveTintColor: '#000000',
+      tabBarHideOnKeyboard: true,
+      // tabBarActiveBackgroundColor: '#F5F5F5',
+      tabBarStyle: { 
+        position: 'absolute',
+        left: 7,
+        right: 7,
+        elevation: 0,
+        borderRadius: 15,
+        height: 70,
+        backgroundColor: '#CAE7EB',
+        ...styles.shadow,
+      },
+      }} 
     >
 
       <Tab.Screen 
         component={PlantData}
         name="plantData"
         options={{ 
-          headerShown: false,
-          title: 'Plant Data',
+          tabBarShowLabel: false,
+          headerShown: false,  
+          tabBarIcon: ({color}) => (
+            <Ionicons name="leaf" size={35} color={color} />
+          
+          )
         }} 
       />
 
@@ -61,40 +54,77 @@ const TabContainer = () => {
         component={Information}
         name="information"
         options={{ 
-          headerShown: false,
-          title: 'Information',
-        }} 
+          tabBarShowLabel: false,
+          headerShown: false,  
+          tabBarIcon: ({color}) => (
+            <Ionicons name="information-circle" size={35} color={color} />
+          
+          )
+        }}  
       />
 
       <Tab.Screen 
         component={CameraScreen}
         name="camera"
         options={{ 
-          headerShown: false,
-          title: 'Camera',
-        }} 
+          tabBarShowLabel: false,
+        headerShown: false,  
+        tabBarIcon: () => (
+         <View style={styles.scanIcon}>
+          <Ionicons name="scan-circle" size={35} color="#000000" />
+         </View>
+        )
+      }}
       />
 
       <Tab.Screen 
         component={Graphs}
         name="Graphs"
         options={{ 
-          headerShown: false,
-          title: 'Graphs',
-        }} 
+          tabBarShowLabel: false,
+        headerShown: false,  
+        tabBarIcon: ({color}) => (
+        <Ionicons name="analytics" size={35} color={color} />
+        )
+      }} 
       />
 
       <Tab.Screen 
         component={Settings}
         name="Settings"
         options={{ 
-          headerShown: false,
-          title: 'Settings',
-        }} 
+          tabBarShowLabel: false,
+        headerShown: false,  
+        tabBarIcon: ({color}) => (
+        <Ionicons name="settings" size={35} color={color} />
+        )
+      }}  
       />
 
     </Tab.Navigator>
   )
 }
+
+const styles = StyleSheet.create({
+  shadow:{
+    shadowColor: "#7F5DF0",
+    shadowOffset: {
+      width: 0,
+      height: 10
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.5,
+    elevation: 5,
+  },
+  scanIcon: {
+    top: -35,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 70,
+    height: 70,
+    backgroundColor: '#37DAD7',
+    borderRadius: 50
+  },
+})
 
 export default TabContainer;
