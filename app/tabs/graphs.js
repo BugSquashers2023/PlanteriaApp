@@ -1,162 +1,258 @@
-import { View, Text, Dimensions } from "react-native";
-import { LineChart } from "react-native-chart-kit";
+import { View, Text, Dimensions, StyleSheet, ScrollView, Alert, FlatList } from "react-native";
+import CustomInput from "../customs/CustomInput/CustomInput";
+import CustomButton from "../customs/CustomButton/CustomButton";
+import Ionicons from '@expo/vector-icons/Ionicons';
+import { useState } from "react";
 
 const Graphs = () => {
     
-    const data = [
+    const plantsData = [
         {
-          name: "Seoul",
-          population: 21500000,
-          color: "rgba(131, 167, 234, 1)",
-          legendFontColor: "#7F7F7F",
-          legendFontSize: 15
+            plantName: "Tomato",
+            plantType:"Veg",
+            soilTemp: {min: 0, max: 5},
+            nitrogen: {min: 10, max: 15},
+            phosphorous: {min: 4.6 ,max: 7},
+            potassium:{min: 10, max: -9}        
         },
         {
-          name: "Toronto",
-          population: 2800000,
-          color: "#F00",
-          legendFontColor: "#7F7F7F",
-          legendFontSize: 15
+            plantName: "Potatoe",
+            plantType:"Veg",
+            soilTemp: {min: 10, max: 15},
+            nitrogen: {min: 10, max: 15},
+            phosphorous: {min: 0 ,max: 7},
+            potassium:{min: -38, max: -9}        
         },
         {
-          name: "Beijing",
-          population: 527612,
-          color: "red",
-          legendFontColor: "#7F7F7F",
-          legendFontSize: 15
+            plantName: "Apple",
+            plantType:"fruit",
+            soilTemp: {min: 1, max: 18},
+            nitrogen: {min: 4, max: 10},
+            phosphorous: {min: 2 ,max: 7},
+            potassium:{min: -38, max: -9}        
         },
         {
-          name: "New York",
-          population: 8538000,
-          color: "#ffffff",
-          legendFontColor: "#7F7F7F",
-          legendFontSize: 15
+            plantName: "Orange",
+            plantType:"Fruit",
+            soilTemp: {min: 1, max: 15},
+            nitrogen: {min: 19, max: 25},
+            phosphorous: {min: 6 ,max: 10},
+            potassium:{min: -38, max: 1}        
         },
-        {
-          name: "Moscow",
-          population: 11920000,
-          color: "rgb(0, 0, 255)",
-          legendFontColor: "#7F7F7F",
-          legendFontSize: 15
-        }
-    ];
 
-    const chartConfig = {
-        backgroundGradientFrom: "#1E2923",
-        backgroundGradientFromOpacity: 0,
-        backgroundGradientTo: "#08130D",
-        backgroundGradientToOpacity: 0.5,
-        color: (opacity = 1) => `rgba(26, 255, 146, ${opacity})`,
-        strokeWidth: 2, // optional, default 3
-        barPercentage: 0.5,
-        useShadowColorFromDataset: false // optional
-      };
+    ];
+    
+    const[temperature, setTemperature] = useState('');
+    const[soilType, setSoilType] = useState('');
+    const[nitrogen, setNitrogen] = useState('');
+    const[potessium, setPotessium] = useState('');
+    const[phosphorus, setPhosphorus] = useState('');
+
+    //const[plants, setPlants] = useState([]);
+    //let plants = [];
+    const[plants, setPlants] = useState([]);
+    const[showRecommend, setShowRecommend] = useState(false);
+    const[noPlants, setNoPlants] = useState(false);
+
+    //error handle variables
+    const[errorTemperature, setErrorTemperature] = useState('');
+    const[errorSoilType, setErrorSoilType] = useState('');
+    const[errorNitrogen, setErrorNitrogen] = useState('');
+    const[errorPotessiumm, setErrorPotessium] = useState('');
+    const[errorPhosphorus, setErrorPhosphorus] = useState('');
+
+    const onTemperatureChange = (text) => {
+        setTemperature(text);
+        setErrorTemperature('');
+    }
+
+    const onSoilType = (text) => {
+        setSoilType(text);
+        setErrorSoilType('');
+    }
+
+    const onNitrogenChange = (text) => {
+        setNitrogen(text);
+        setErrorNitrogen('');
+    }
+
+    const onPotessiumChange = (text) => {
+        setPotessium(text);
+        setErrorPotessium('');
+    }
+
+    const onPhosphorusChange = (text) => {
+        setPhosphorus(text);
+        setErrorPhosphorus('')
+    }
+
+    const RecomendPlants = () => {
+        // validate inputs from the user:
+        if(!temperature){
+            setErrorTemperature("temperature is required");           
+        }
+        else if(!soilType){
+            setErrorSoilType("soil type is required");
+        }
+        else if(!nitrogen){
+            setErrorNitrogen('Nitrogen is required');
+        }
+        else if(!potessium){
+            setErrorPotessium("Potessium is required");
+        }
+        else if(!phosphorus){
+            setErrorPhosphorus('Phosphorous is required');
+        }
+        else{
+            // now select suitable plants to crop for the criteria:
+            plantsData.forEach((plant, index) => {
+                if(plant.nitrogen.max >= nitrogen && plant.nitrogen.min <= nitrogen){
+                    if(plant.phosphorous.max >= phosphorus && plant.phosphorous.min <= phosphorus){
+                        if(plant.potassium.max >= potessium && plant.potassium.min <= potessium){
+                            if(plant.soilTemp.max >= temperature && plant.soilTemp.min <= temperature){
+                                plants.push(plant);
+                            }
+                            
+                        }
+                        //console.log("passed phosphorus");
+                    }
+                    //console.log("passed nitrogen");
+                }
+            })
+
+            setShowRecommend(!showRecommend);
+            
+            console.log("item on plants:", plants.length);
+            console.log(noPlants);
+
+            if(!plants.length > 0){
+                setNoPlants(true);
+            }
+
+
+        }
+    }
 
     return(
-        <View style={{flex: 1, alignItems: 'center', marginTop: 30, marginRight: '2%'}}>
-            <Text style={{fontWeight: 'bold', fontSize: 25}}>Analytics</Text>
+        <View style={{flex: 1, marginTop: 35,}}>
+            {!showRecommend ? (
+            <ScrollView style={{width:"100%", marginBottom: 70}}>     
+            <Text style={{fontWeight: 'bold', fontSize: 25, marginLeft: "auto", marginRight: "auto" }}>Analytics</Text>   
 
-            <View style={{width:'96%', marginBottom: 15}}>
+            <View style={styles.mainContainer}>
 
-                <LineChart
-                data={{
-                labels: ["January", "February", "March", "April", "May", "June"],
-                datasets: [
-                    {
-                    data: [
-                        Math.random() * 100,
-                        Math.random() * 100,
-                        Math.random() * 100,
-                        Math.random() * 100,
-                        Math.random() * 100,
-                        Math.random() * 100
-                    ]
-                    }
-                ]
-                }}
+                <View style={styles.inputContainer}>
+                    
+                    {!errorTemperature ? (<Text>Temperature</Text>) : (<Text style={{color: "red"}}>{errorTemperature}</Text>)}                    
+                    <CustomInput
+                        placeholder="plant name"
+                        value={temperature}
+                        setValue={onTemperatureChange}
+                        error={errorTemperature}
+                    />
 
-                width={Dimensions.get("window").width} // from react-native
-                height={220}
-                
-                yAxisLabel="$"
-                yAxisSuffix="k"
-                yAxisInterval={1} // optional, defaults to 1
-                chartConfig={{
-                backgroundColor: "#e26a00",
-                backgroundGradientFrom: "#fb8c00",
-                backgroundGradientTo: "#ffa726",
-                decimalPlaces: 2, // optional, defaults to 2dp
-                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(250, 250, 250, ${opacity})`,
-                style: {
-                    borderRadius: 16
-                },
-                propsForDots: {
-                    r: "6",
-                    strokeWidth: "2",
-                    stroke: "#0F993E"
-                }
-                }}
-                bezier
-                style={{
-                marginVertical: 8,
-                borderRadius: 16
-                }}
-                />
+                    {!errorSoilType ? (<Text>Soil type</Text>) : (<Text style={{color: "red"}}>{errorSoilType}</Text>)}
+                    <CustomInput
+                        placeholder="soil type"
+                        value={soilType}
+                        setValue={onSoilType}
+                        error={errorSoilType}
+                    />
 
-            </View>
+                    {!errorNitrogen ? (<Text>Nitrogen</Text>) : (<Text style={{color: "red"}}>{errorNitrogen}</Text>)}
+                    <CustomInput
+                        placeholder="nitrogen"
+                        value={nitrogen}
+                        setValue={onNitrogenChange}
+                        error={errorNitrogen}
+                    />
 
-            <View style={{width:'96%', marginBottom: 15}}>
+                    {!errorPotessiumm ? (<Text>Potessium</Text>) : (<Text style={{color: "red"}}>{errorPotessiumm}</Text>)}
+                    <CustomInput
+                        placeholder="potessium"
+                        value={potessium}
+                        setValue={onPotessiumChange}
+                        error={errorPotessiumm}
+                    />
 
-                <LineChart
-                data={{
-                labels: ["January", "February", "March", "April", "May", "June"],
-                datasets: [
-                    {
-                    data: [
-                        Math.random() * 100,
-                        Math.random() * 100,
-                        Math.random() * 100,
-                        Math.random() * 100,
-                        Math.random() * 100,
-                        Math.random() * 100
-                    ]
-                    }
-                ]
-                }}
+                    {!errorPhosphorus ? (<Text>Phosphorus</Text>) : (<Text style={{color: "red"}}>{errorPhosphorus}</Text>)}
+                    <CustomInput
+                        placeholder="Phosphorus"
+                        value={phosphorus}
+                        setValue={onPhosphorusChange}
+                        error={errorPhosphorus}
+                    />
 
-                width={Dimensions.get("window").width} // from react-native
-                height={220}
-                yAxisLabel="$"
-                yAxisSuffix="k"
-                yAxisInterval={1} // optional, defaults to 1
-                chartConfig={{
-                backgroundGradientFrom: "#0000",
-                backgroundGradientTo: "#f0f0f0",
-                decimalPlaces: 2, // optional, defaults to 2dp
-                color: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                labelColor: (opacity = 1) => `rgba(255, 255, 255, ${opacity})`,
-                style: {
-                    borderRadius: 16
-                },
-                propsForDots: {
-                    r: "6",
-                    strokeWidth: "2",
-                    stroke: "#0F993E"
-                }
-                }}
-                bezier
-                style={{
-                marginVertical: 8,
-                borderRadius: 16,
-                
-                }}
-                />
+                    <View style={{marginLeft: "auto", marginRight: "auto", width: 200}}>
+                        <CustomButton text="recomend plants" onPress={RecomendPlants} />
+                    </View>
+                    
+                </View>
 
-            </View>
-        
+            </View>          
+            </ScrollView>
+            ) : (
+                <View>
+                    <Text style={{fontWeight: 'bold', fontSize: 25, marginLeft: "auto", marginRight: "auto" }}>Recommended Plants</Text>
+
+                    <FlatList 
+                        data={plants} //for test mode
+                        renderItem={({item, index}) => (
+                            <View style={styles.itemStyle} key={index}>
+                                <Text>{item.plantName}</Text>
+                                <Text>{item.plantType}</Text>
+                            </View>
+                        )}
+                    />
+
+                    {noPlants && <View style={styles.healthyBody}>
+                        <Ionicons name="close-circle-outline" color="green" size={58}/>
+                        <Text style={{color:"green"}}>No Plants found</Text>
+                    </View>}
+
+                    <View style={{marginLeft: "auto", marginRight: "auto", width: 200}}>
+                        <CustomButton text="Done" onPress={() => {
+                            setShowRecommend(!showRecommend);
+                            setPlants([]);
+                            setNoPlants(false);
+                        }} 
+                        />
+                    </View>
+                    
+                </View>
+            )}
         </View>
     )
 }
+
+const styles = StyleSheet.create({
+    inputContainer:{
+        width: "100%",       
+    },
+    mainContainer: {
+        width: "90%",
+        backgroundColor: "#E1E1E1",
+        borderRadius: 8,
+        padding: 12,
+        marginTop: 25,
+        marginLeft: "auto",
+        marginRight: "auto",
+    },
+    itemStyle:{
+        width: "90%",
+        backgroundColor: "#E1E1E1",
+        borderRadius: 8,
+        padding: 12,
+        marginTop: 8,
+        marginLeft: "auto",
+        marginRight: "auto",
+    },
+    healthyBody:{
+        marginTop: 90,
+        alignContent:"center",
+        alignItems:"center",
+        marginBottom: 90,
+      }
+})
 
 export default Graphs;

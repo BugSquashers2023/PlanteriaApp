@@ -1,18 +1,32 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, ScrollView, Alert} from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView } from 'react-native';
 import CustomInput from '../customs/CustomInput/CustomInput';
 import CustomButton from '../customs/CustomButton/CustomButton';
-
-import { useNavigation } from 'expo-router';
+import { useNavigation } from '@react-navigation/native';
+import { sendPasswordResetEmail } from 'firebase/auth';
+import { auth } from '../Data/Firebase';
 
 const ForgotPasswordScreen = () => {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [emailError, setEmailError] = useState('');
 
   const navigation = useNavigation();
 
   const onSendPressed = () => {
-    //navigation.navigate('NewPassword');
-    Alert.alert("send button is clicked");
+    if (!email || !email.trim()) {
+      setEmailError('Email is required');
+    } else {
+      // Send password reset email
+      sendPasswordResetEmail(auth, email)
+        .then(() => {
+          setEmailError(''); // Clear the error message if email is successfully sent
+          navigation.navigate('signUpScreen'); // Navigate back to SignInScreen or any other appropriate screen
+        })
+        .catch((error) => {
+          setEmailError('Error sending email. Please check the email address and try again.');
+          console.error(error);
+        });
+    }
   };
 
   const onSignInPress = () => {
@@ -25,10 +39,11 @@ const ForgotPasswordScreen = () => {
         <Text style={styles.title}>Reset your password</Text>
 
         <CustomInput
-          placeholder="Username"
-          value={username}
-          setValue={setUsername}
+          placeholder="Email"
+          value={email}
+          setValue={setEmail}
         />
+        {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
 
         <CustomButton text="Send" onPress={onSendPressed} />
 
@@ -46,7 +61,7 @@ const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
     padding: 20,
-    marginTop:20
+    marginTop: 20,
   },
   title: {
     fontSize: 24,
@@ -54,12 +69,10 @@ const styles = StyleSheet.create({
     color: '#051C60',
     margin: 10,
   },
-  text: {
-    color: 'gray',
-    marginVertical: 10,
-  },
-  link: {
-    color: '#FDB075',
+  errorText: {
+    color: 'red',
+    marginTop: 5,
+    marginBottom: 10,
   },
 });
 
