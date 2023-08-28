@@ -104,8 +104,8 @@ const CameraScreen = ({ route }) => {
 
         //health data:
         const healthData = {
-          // api_key: "4SVwYwK2SpxNsVtJOySrcalg54M8M2KgY48l3tKFhFrQ6OiqVX",
-          api_key: "FcK1nJcBa5hNm56Z1mMBeMuuPj8uKV7ILYxTdIljwRTqVnSoxq",
+          api_key: "BW1KvM9XA8R0ShFUKb30KCRIyXTejR4F4ggqYLUowLJSXfS56K", //key for presentation
+          //api_key: "FcK1nJcBa5hNm56Z1mMBeMuuPj8uKV7ILYxTdIljwRTqVnSoxq",
           images: formatedPic,
           latitude: latCoord,
           longitude: longCoord,
@@ -127,11 +127,13 @@ const CameraScreen = ({ route }) => {
           let status = apiData.health_assessment.is_healthy;
           //console.log("image: ", pictureUri);
           //console.log(apiData.health_assessment.diseases[0]);
-          for(let i = 0; i < 2; i++){
+          for(let i = 0; i < 3; i++){
             plantData.push(apiData.health_assessment.diseases[i])
+            console.log("name: ", apiData.health_assessment.diseases[i].name);
+
           }
           
-          //below it should check if its a plant using condition:         
+          //below it should check if its a plant using condition: apiData.is_plant        
           if(apiData.is_plant){
             //console.log("image on camera tab: ", data.uri);
             navigation.navigate('resultsScreen', {data:plantData, scanImg: scanPlant, isHealthy: status});
@@ -195,9 +197,9 @@ const CameraScreen = ({ route }) => {
                 <Text styele={{marginTop: 50}}>scan image multiple times for better results</Text> 
               </View>
              
-                <CustomLoader visible={loading} />
+                
               </ScrollView>
-
+              <CustomLoader visible={loading} />
             </View>                                        
       )}
     </View>

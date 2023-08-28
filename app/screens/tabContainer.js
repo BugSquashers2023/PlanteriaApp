@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   scanIcon: {
-    top: -35,
+    top: -20,
     justifyContent: 'center',
     alignItems: 'center',
     width: 70,

@@ -1,4 +1,4 @@
-import { View, Text, Dimensions, StyleSheet, ScrollView, Alert, FlatList } from "react-native";
+import { View, Text, Dimensions, StyleSheet, ScrollView, Alert, FlatList, } from "react-native";
 import CustomInput from "../customs/CustomInput/CustomInput";
 import CustomButton from "../customs/CustomButton/CustomButton";
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -9,20 +9,27 @@ const Graphs = () => {
     const plantsData = [
         {
             plantName: "Tomato",
-            plantType:"Veg",
-            soilTemp: {min: 0, max: 5},
-            nitrogen: {min: 10, max: 15},
-            phosphorous: {min: 4.6 ,max: 7},
-            potassium:{min: 10, max: -9}        
+            plantType:"Fruit",
+            soilTemp: {min: 70, max: 85},
+            nitrogen: {min: 50, max: 100},
+            phosphorous: {min: 50 ,max: 100},
+            potassium:{min: 65, max: 80}        
         },
-        
         {
-            plantName: "Potatoe",
+            plantName: "Carrots",
             plantType:"Veg",
-            soilTemp: {min: 10, max: 15},
-            nitrogen: {min: 10, max: 15},
-            phosphorous: {min: 0 ,max: 7},
-            potassium:{min: -38, max: -9}        
+            soilTemp: {min: 60, max: 70},
+            nitrogen: {min: 50, max: 100},
+            phosphorous: {min: 30 ,max: 60},
+            potassium:{min: 75, max: 100}        
+        },      
+        {
+            plantName: "Corn (Zea mays)",
+            plantType: "Veg",
+            soilTemp: {min: 60, max: 95},
+            nitrogen: {min: 50, max: 100},
+            phosphorous: {min: 50 ,max: 100},
+            potassium:{min: 75, max: 100}        
         },
         {
             plantName: "Apple",
@@ -40,10 +47,75 @@ const Graphs = () => {
             phosphorous: {min: 6 ,max: 10},
             potassium:{min: -38, max: 1}        
         },
+        {
+            plantName: "Lettuce (Lactuca sativa)",
+            plantType:"Veg",
+            soilTemp: {min: 1, max: 15},
+            nitrogen: {min: 75, max: 100},
+            phosphorous: {min: 30 ,max: 50},
+            potassium:{min: 75, max: 100}        
+        },
+        {
+            plantName: "Potato (Solanum tuberosum)",
+            plantType:"Veg",
+            soilTemp: {min: 50, max: 70},
+            nitrogen: {min: 75, max: 100},
+            phosphorous: {min: 50 ,max: 100},
+            potassium:{min: 75, max: 100}        
+        },
+        {
+            plantName: "Beans (Phaseolus vulgaris)",
+            plantType:"Veg",
+            soilTemp: {min: 65, max: 85},
+            nitrogen: {min: 75, max: 100},
+            phosphorous: {min: 30 ,max: 60},
+            potassium:{min: 75, max: 100}        
+        },
+        {
+            plantName: "Cucumber (Cucumis sativus)",
+            plantType:"Veg",
+            soilTemp: {min: 70, max: 95},
+            nitrogen: {min: 75, max: 100},
+            phosphorous: {min: 50 ,max: 100},
+            potassium:{min: 75, max: 100}        
+        },
+        {
+            plantName: "Spinach (Spinacia oleracea)",
+            plantType:"Veg",
+            soilTemp: {min: 35, max: 75},
+            nitrogen: {min: 75, max: 100},
+            phosphorous: {min: 30 ,max: 50},
+            potassium:{min: 75, max: 100}        
+        },
+        {
+            plantName: "Onion (Allium cepa)",
+            plantType:"Veg",
+            soilTemp: {min: 45, max: 75},
+            nitrogen: {min: 75, max: 100},
+            phosphorous: {min: 30 ,max: 50},
+            potassium:{min: 75, max: 100}        
+        },
+        {
+            plantName: "Bell Pepper (Capsicum annuum)",
+            plantType:"Fruit",
+            soilTemp: {min: 70, max: 85},
+            nitrogen: {min: 75, max: 100},
+            phosphorous: {min: 50 ,max: 100},
+            potassium:{min: 75, max: 100}        
+        },
+        {
+            plantName: "Pumpkin (Cucurbita pepo)",
+            plantType:"Veg",
+            soilTemp: {min: 70, max: 85},
+            nitrogen: {min: 75, max: 100},
+            phosphorous: {min: 50 ,max: 100},
+            potassium:{min: 75, max: 100}        
+        },
+        
+        
 
     ];
     const[temperature, setTemperature] = useState('');
-    const[soilType, setSoilType] = useState('');
     const[nitrogen, setNitrogen] = useState('');
     const[potessium, setPotessium] = useState('');
     const[phosphorus, setPhosphorus] = useState('');
@@ -56,7 +128,6 @@ const Graphs = () => {
 
     //error handle variables
     const[errorTemperature, setErrorTemperature] = useState('');
-    const[errorSoilType, setErrorSoilType] = useState('');
     const[errorNitrogen, setErrorNitrogen] = useState('');
     const[errorPotessiumm, setErrorPotessium] = useState('');
     const[errorPhosphorus, setErrorPhosphorus] = useState('');
@@ -64,11 +135,6 @@ const Graphs = () => {
     const onTemperatureChange = (text) => {
         setTemperature(text);
         setErrorTemperature('');
-    }
-
-    const onSoilType = (text) => {
-        setSoilType(text);
-        setErrorSoilType('');
     }
 
     const onNitrogenChange = (text) => {
@@ -88,13 +154,9 @@ const Graphs = () => {
 
     const RecomendPlants = () => {
         // validate inputs from the user:
-        if(!temperature){
-            setErrorTemperature("temperature is required");           
-        }
-        else if(!soilType){
-            setErrorSoilType("soil type is required");
-        }
-        else if(!nitrogen){
+        
+
+        if(!nitrogen){
             setErrorNitrogen('Nitrogen is required');
         }
         else if(!potessium){
@@ -110,8 +172,8 @@ const Graphs = () => {
                     if(plant.phosphorous.max >= phosphorus && plant.phosphorous.min <= phosphorus){
                         if(plant.potassium.max >= potessium && plant.potassium.min <= potessium){
                             if(plant.soilTemp.max >= temperature && plant.soilTemp.min <= temperature){
-                                plants.push(plant);
                             }
+                            plants.push(plant);
                             
                         }
                         //console.log("passed phosphorus");
@@ -137,27 +199,19 @@ const Graphs = () => {
         <View style={{flex: 1, marginTop: 35,}}>
             {!showRecommend ? (
             <ScrollView style={{width:"100%", marginBottom: 70}}>     
-            <Text style={{fontWeight: 'bold', fontSize: 25, marginLeft: "auto", marginRight: "auto" }}>Analytics</Text>   
+            <Text style={{fontWeight: 'bold', fontSize: 25, marginLeft: "auto", marginRight: "auto" }}>Crop Recommendation</Text>   
 
             <View style={styles.mainContainer}>
 
                 <View style={styles.inputContainer}>
                     
-                    {!errorTemperature ? (<Text>Temperature</Text>) : (<Text style={{color: "red"}}>{errorTemperature}</Text>)}                    
+                    {/* {!errorTemperature ? (<Text>Temperature</Text>) : (<Text style={{color: "red"}}>{errorTemperature}</Text>)}                    
                     <CustomInput
                         placeholder="plant name"
                         value={temperature}
                         setValue={onTemperatureChange}
                         error={errorTemperature}
-                    />
-
-                    {!errorSoilType ? (<Text>Soil type</Text>) : (<Text style={{color: "red"}}>{errorSoilType}</Text>)}
-                    <CustomInput
-                        placeholder="soil type"
-                        value={soilType}
-                        setValue={onSoilType}
-                        error={errorSoilType}
-                    />
+                    /> */}
 
                     {!errorNitrogen ? (<Text>Nitrogen</Text>) : (<Text style={{color: "red"}}>{errorNitrogen}</Text>)}
                     <CustomInput
@@ -184,7 +238,7 @@ const Graphs = () => {
                     />
 
                     <View style={{marginLeft: "auto", marginRight: "auto", width: 200}}>
-                        <CustomButton text="recomend plants" onPress={RecomendPlants} />
+                        <CustomButton text="recommend plants" onPress={RecomendPlants} />
                     </View>
                     
                 </View>
@@ -192,34 +246,49 @@ const Graphs = () => {
             </View>          
             </ScrollView>
             ) : (
-                <View>
+                <ScrollView>
                     <Text style={{fontWeight: 'bold', fontSize: 25, marginLeft: "auto", marginRight: "auto" }}>Recommended Plants</Text>
 
-                    <FlatList 
+                    {/* <FlatList 
                         data={plants} //for test mode
                         renderItem={({item, index}) => (
                             <View style={styles.itemStyle} key={index}>
-                                <Text>{item.plantName}</Text>
+                                <Text style={{ color: "green", fontSize: 19 }}>{item.plantName}</Text>
                                 <Text>{item.plantType}</Text>
                             </View>
                         )}
-                    />
+                    /> */}
+
+                    {plants.map((record, index) => {
+                        return(
+                            <View style={styles.itemStyle} key={index}>
+                                <Text style={{ color: "green", fontSize: 19 }}>{record.plantName}</Text>
+                                <Text>{record.plantType}</Text>
+                                </View>
+                        )
+                    })}
 
                     {noPlants && <View style={styles.healthyBody}>
                         <Ionicons name="close-circle-outline" color="green" size={58}/>
                         <Text style={{color:"green"}}>No Plants found</Text>
                     </View>}
 
-                    <View style={{marginLeft: "auto", marginRight: "auto", width: 200}}>
+                    <View style={{marginLeft: "auto", marginRight: "auto", width: 200, marginBottom: 80}}>
                         <CustomButton text="Done" onPress={() => {
                             setShowRecommend(!showRecommend);
-                            setPlants([]);
+                            setPlants([]); 
                             setNoPlants(false);
+
+                            //clear inputs field
+                            setTemperature("");
+                            setNitrogen("");
+                            setPotessium("");
+                            setPhosphorus("");
                         }} 
                         />
                     </View>
                     
-                </View>
+                </ScrollView>
             )}
         </View>
     )

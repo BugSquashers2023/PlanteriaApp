@@ -51,6 +51,7 @@ const ResultsScreen = ({ route, navigation }) => {
             await setDoc(userPlantRef, chosenDetails);
     
             console.log('User plant data added to Firestore successfully!');
+            Alert.alert("saved successfully")
             // You can perform any additional actions after the details are saved here.
         } catch (error) {
             console.error('Error adding user plant document: ', error);
@@ -72,12 +73,12 @@ const ResultsScreen = ({ route, navigation }) => {
         <View style={{flex: 1, }}>  
 
         {isHealthy ? (
-          <View>   
+          <View style={{ marginTop: 15 }}>   
 
             <Image style={myStyles.healthImage} source={{ uri:scanImg }} />
            
             <View style={myStyles.healthyBody}>
-              <Ionicons name="checkmark-done-circle-outline" color="green" size="58"/>
+              <Ionicons name="checkmark-done-circle-outline" color="green" size={58}/>
               <Text style={{fontSize: 20, color:"green"}}>plant is healthy</Text>
             </View>
   
@@ -93,9 +94,9 @@ const ResultsScreen = ({ route, navigation }) => {
               {data.map((item, index) => {
                 return(
                   <Pressable key={index} onPress={(e) => {viewEach(e, item.name, item.disease_details.cause, item.disease_details.description, item.disease_details.treatment)}} style={myStyles.diseaseList}>
-                    <Text>problem: {item.name}</Text>
-                    <Text>cause: {item.disease_details.cause}</Text>
-                    <Text>description</Text>
+                    <Text style={{fontSize: 20, }}>problem: {item.name}</Text>
+                    {/* <Text>cause: {item.disease_details.cause}</Text> */}
+                    <Text style={{fontSize: 20, }}>description</Text>
                     <Text>{item.disease_details.description}</Text>
                   </Pressable>
                 )

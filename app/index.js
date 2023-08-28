@@ -67,7 +67,7 @@ export default function Page() {
           <Stack.Screen
             name="resultsScreen"
             component={ResultsScreen}
-            options={{ presentation: "modal", headerShown: false }}
+            options={{ headerShown: true }}
           />
           
           <Stack.Screen
